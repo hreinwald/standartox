@@ -29,7 +29,7 @@
 #' stxDb_subset <- stx_download(data_type = c("phch", "taxa"))
 #' names(stxDb_subset)
 #' 
-#' #' # Specify a permanent directory for storing the downloaded data tables
+#' # Specify a permanent directory for storing the downloaded data tables
 #' # This will create the directory if it doesn't exist and cache the files there
 #' my_stx_dir <- file.path("~","my_standartox_db")
 #' stxDb_permanent <- stx_download(stx_dir = my_stx_dir, silent = FALSE)
@@ -170,7 +170,7 @@ filter_dt.OR = function(dt, var_ls, silent = TRUE){
               ". Please check the input values.")
       return(NULL) }
     return(dt.out)
-  } else { dt }
+  } else { return(dt) }
 }
 
 
@@ -360,7 +360,7 @@ stx_query = function(
   ## REFERENCE SECTION ##
   include_reference = FALSE, # Default FALSE
   rm_NR = TRUE, # Default TRUE; if FALSE, keep NR values in the result
-  verbose = FALSE, # Default TRUE; if FALSE, print messages
+  verbose = FALSE, # Default FALSE; if TRUE, print messages
   ...){
   message("Querying Standartox data base ...")
   
@@ -368,7 +368,7 @@ stx_query = function(
   if(verbose) message("Reading in Standartox Data ...")
   stx_table = c('test_fin','phch','taxa') # 
   if(include_reference) { stx_table = unique(c(stx_table,'refs')) }
-  stxDb =  stx_download(data_type = stx_table) #, ...)
+  stxDb =  stx_download(data_type = stx_table, ...)
   names(stxDb) = sub("[.]fst$","",names(stxDb)) # FIX
   
   # Split up list object
@@ -687,10 +687,33 @@ stx_taxa = function(silent = FALSE, stx_dir = file.path(tempdir(), "standartox")
 
 
 
-#' Function to aggregate filtered test results
-#'  
+#' Aggregate Filtered Toxicity Test Results
+#'
+#' Aggregates toxicity test data by computing geometric mean concentrations
+#' and geometric standard deviations, grouped by chemical name, CAS number,
+#' and taxon. The results are then further summarized per chemical, reporting
+#' the minimum and maximum geometric means along with the corresponding taxa.
+#'
+#' @param dat data.table; A data.table containing filtered toxicity test results.
+#'   Must include the columns \code{concentration}, \code{cname}, \code{cas}, and
+#'   \code{tax_taxon}. Typically, this is the output of \code{\link{stx_query}}.
+#'   Must not be \code{NULL}.
+#'
+#' @return A \code{data.table} with one row per chemical (\code{cname}, \code{cas}),
+#'   containing the following summary columns:
+#'   \describe{
+#'     \item{min}{Minimum geometric mean concentration across taxa.}
+#'     \item{tax_min}{Taxon associated with the minimum geometric mean.}
+#'     \item{gmn}{Overall geometric mean of the per-taxon geometric means.}
+#'     \item{gmnsd}{Geometric standard deviation of the per-taxon geometric standard deviations.}
+#'     \item{max}{Maximum geometric mean concentration across taxa.}
+#'     \item{tax_max}{Taxon associated with the maximum geometric mean.}
+#'     \item{n}{Total number of individual test records.}
+#'     \item{tax_all}{Comma-separated list of all unique taxa.}
+#'   }
+#'
 #' @author Andreas Scharmueller \email{andschar@@protonmail.com}
-#' 
+#'
 #' @noRd
 stx_aggregate = function(dat = NULL) {
   # assign variables to avoid R CMD check NOTES
@@ -722,10 +745,10 @@ stx_aggregate = function(dat = NULL) {
 
 #' Retrieve meta data
 #' 
-#' @return Returns a data.table containing meta informaiton on Standartox.
+#' @return Returns a data.table containing meta information on Standartox.
 #' 
 #' @param silent logical; If TRUE, suppresses messages. Default is FALSE.
-#' @param stx_dir character; Directory to which the meta information should be downloaded. Default is a temporary directory.#' 
+#' @param stx_dir character; Directory to which the meta information should be downloaded. Default is a temporary directory.
 #'
 #' @author Andreas Scharmueller \email{andschar@@protonmail.com}
 #' @author Hannes Reinwald

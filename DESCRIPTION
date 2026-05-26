@@ -24,7 +24,8 @@ Imports:
     curl (>= 3.4),
     jsonlite (>= 1.6.1),
     fst (>= 0.9.4),
-    data.table (>= 1.17.8)
+    data.table (>= 1.17.8),
+    stringr (>= 1.4.0)
 License: MIT + file LICENSE
 URL: https://github.com/andschar/standartox
 BugReports: https://github.com/andschar/standartox/issues
